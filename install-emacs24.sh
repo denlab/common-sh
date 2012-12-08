@@ -71,7 +71,7 @@ tee "$EM_DIR"/init.el <<EOF
 
 ;; Add in your own as you wish:
 (defvar my-packages '(starter-kit starter-kit-lisp starter-kit-bindings clojure-mode clojure-test-mode multi-term switch-window slime fold-dwim
-                                  htmlize)
+                                  htmlize expand-region ace-jump-mode)
   "A list of packages to ensure are installed at launch.")
 
 (dolist (p my-packages)
@@ -175,7 +175,41 @@ tee "$EM_DIR"/init.el <<EOF
 ;;                start the emacs server at startup
 ;; ===================================================================
 
-(server-mode)
+;(server-mode)
+
+(add-hook 'after-init-hook
+          (lambda ()
+            (if (not window-system)
+                (set-face-background 'default "color-16"))))
+
+(defun quirk-black-background ()
+  (interactive)
+  (set-face-background 'default "color-16"))
+
+;; ===================================================================
+;;        redfine expand-region as C-= do not work in console
+;; ===================================================================
+
+(global-set-key (kbd "C-c =") 'er/expand-region)
+
+;; ===================================================================
+;;                ace jump mode config
+;; ===================================================================
+
+(autoload
+  'ace-jump-mode
+  "ace-jump-mode"
+  "Emacs quick move minor mode"
+  t)
+;; you can select the key you prefer to
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+
+;; org-mode shadows this binding, so force it
+
+(add-hook 'org-mode-hook
+  (lambda ()
+    ;(dired-omit-mode 1)
+    (define-key org-mode-map (kbd "C-c SPC") 'ace-jump-mode)))
 
 EOF
 
